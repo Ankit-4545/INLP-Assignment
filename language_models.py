@@ -1,6 +1,6 @@
 import math
 from collections import defaultdict, Counter
-from tk import (
+from tokenizers import (
         WhitespaceTokenizer, 
         RegexTokenizer, 
         BPETokenizer, 
@@ -301,7 +301,6 @@ def run_full_experiment(corpus_path, language_name, max_lines=3000):
     # Load corpus
     print(f"\n[1] Loading corpus from {corpus_path}...")
     raw_texts = load_jsonl_corpus(corpus_path, max_lines=max_lines)
-    print(f"    Loaded {len(raw_texts)} sentences")
     
     # Clean corpus
     print("\n[2] Cleaning corpus...")
@@ -410,7 +409,7 @@ def run_full_experiment(corpus_path, language_name, max_lines=3000):
             for sent in data['train'][:100]:
                 if len(sent) >= 3:
                     tok_prompts.append(sent[:3])
-                    if len(tok_prompts) >= 5: 
+                    if len(tok_prompts) >= 2: 
                         break
         
         if not tok_prompts:
@@ -442,37 +441,6 @@ def print_qualitative_analysis(results, tokenized_data, language_name):
             sample = data['train'][0][:8]
             print(f"  {tok_name}: {sample}")
     
-    print("\n--- Good Tokenization Examples ---")
-    if 'english' in language_name.lower():
-        print("1. Whitespace tokenizer: Preserves case and handles simple sentences")
-        print("   'The cat sat' -> ['The', 'cat', 'sat']")
-        print("2. Regex tokenizer: Normalizes case, separates punctuation cleanly")
-        print("   'Hello, World!' -> ['hello', ',', 'world', '!']")
-        print("3. BPE tokenizer: Creates subword units for better generalization")
-        print("   'unhappiness' -> ['un', 'happ', 'in', 'ess</w>']")
-    else:  # Mongolian
-        print("1. Whitespace tokenizer: Handles Cyrillic script word boundaries")
-        print("   'Сайн байна уу' -> ['Сайн', 'байна', 'уу']")
-        print("2. Regex tokenizer: Works with unicode, normalizes text")
-        print("   Properly handles Mongolian punctuation and numbers")
-        print("3. BPE tokenizer: Learns Mongolian morphological patterns")
-        print("   Captures common suffixes like '-ын', '-ийн' (genitive)")
-    
-    print("\n--- Bad Tokenization Examples ---")
-    if 'english' in language_name.lower():
-        print("1. Whitespace: Doesn't separate punctuation from words")
-        print("   'Hello,' stays as one token - hurts sparsity")
-        print("2. Regex: May over-split contractions")
-        print("   'don't' -> ['don', \"'\", 't'] - 3 tokens for 1 word")
-        print("3. BPE: Arbitrary splits on rare words")
-        print("   'cryptocurrency' -> many small subwords")
-    else:  # Mongolian
-        print("1. Whitespace: Large vocabulary due to agglutinative morphology")
-        print("   Many word forms -> severe data sparsity")
-        print("2. Regex: Similar sparsity issues, doesn't help with morphology")
-        print("   Each suffix combination = new token")
-        print("3. BPE: May split meaningful morphemes incorrectly")
-        print("   Could break up case markers inappropriately")
     if language_name == "Mongolian":
         return
     
@@ -493,14 +461,6 @@ def print_qualitative_analysis(results, tokenized_data, language_name):
                     best_config = f"{tok_name} + {model_name}"
     
     print(f"\n  Best configuration: {best_config} (perplexity: {best_perp:.2f})")
-    
-    print("\n--- Key Observations ---")
-    print(f"1. BPE tokenizer consistently achieves lowest perplexity for {language_name}")
-    print("   -> Smaller vocabulary, better generalization to unseen data")
-    print("2. Kneser-Ney outperforms Witten-Bell in all configurations")
-    print("   -> Continuation counts provide better probability estimates")
-    print("3. No smoothing fails completely due to zero probabilities")
-    print("   -> Essential to use smoothing for any practical application")
 
 
 # Example usage
@@ -526,7 +486,7 @@ if __name__ == "__main__":
         en_results, en_data = run_full_experiment(
             english_path, 
             "English", 
-            max_lines=20000  # Adjust based on available memory
+            max_lines=2000  # Adjust based on available memory
         )
         all_results['English'] = en_results
         print_qualitative_analysis(en_results, en_data, "English")
