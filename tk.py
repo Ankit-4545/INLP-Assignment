@@ -14,9 +14,6 @@ class WhitespaceTokenizer:
             self.vocab.update(tokens)
     
     def _tokenize(self, text):
-        
-        # Split on whitespace first
-        text = re.sub(r'([^\w\s])', r' \1 ', text)
         return text.split()
        
     def tokenize(self, text):
@@ -43,7 +40,7 @@ class RegexTokenizer:
 
 class BPETokenizer:
     
-    def __init__(self, num_merges=3000):
+    def __init__(self, num_merges=1000):
        
         self.num_merges = num_merges
         self.vocab = set()
@@ -206,7 +203,7 @@ def split_corpus(sentences, train_ratio=0.8, val_ratio=0.1):
 
 if __name__ == "__main__":
 
-    test_text = "hello , world"
+    test_text = "hello, world"
     
     ws = WhitespaceTokenizer()
     print(f"Whitespace: {ws.tokenize(test_text)}")

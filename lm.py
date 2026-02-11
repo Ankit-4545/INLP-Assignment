@@ -316,7 +316,7 @@ def run_full_experiment(corpus_path, language_name, max_lines=3000):
     tokenizers = {
         'Whitespace': WhitespaceTokenizer(),
         'Regex': RegexTokenizer(),
-        'BPE': BPETokenizer(num_merges=3000)
+        'BPE': BPETokenizer(num_merges=1000)
     }
     
     # Train tokenizers and prepare data splits
@@ -526,7 +526,7 @@ if __name__ == "__main__":
         en_results, en_data = run_full_experiment(
             english_path, 
             "English", 
-            max_lines=500000  # Adjust based on available memory
+            max_lines=20000  # Adjust based on available memory
         )
         all_results['English'] = en_results
         print_qualitative_analysis(en_results, en_data, "English")
