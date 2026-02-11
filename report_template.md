@@ -1,9 +1,9 @@
 # Assignment 1: Tokenization and Language Modeling
 **Introduction to NLP - Spring '26**
 
-**Name:** [Your Name]  
-**Roll Number:** [Your Roll Number]  
-**Date:** [Submission Date]
+**Name:** [Ankit Kumar]  
+**Roll Number:** [2025201022]  
+**Date:** [11/02/2026]
 
 ---
 
@@ -35,8 +35,8 @@ This report presents the implementation and analysis of tokenization methods and
 **Description:** Splits text on whitespace characters only.
 
 **Simplifying Assumptions:**
-- Punctuation remains attached to adjacent words
-- No special handling of contractions (e.g., "don't" stays as one token)
+- Punctuation remains attached to adjacent words if there is no space between them.
+- No special handling of contractions (e.g., "don't" stays as one token).
 
 #### Regex Tokenizer
 **Description:** Uses regular expression to separate words, numbers, and punctuation.
@@ -51,7 +51,7 @@ This report presents the implementation and analysis of tokenization methods and
 #### BPE Tokenizer
 **Description:** Byte Pair Encoding learns subword units through iterative merging.
 
-**Parameters:** 1500 merge operations
+**Parameters:** 1000 merge operations
 
 **Simplifying Assumptions:**
 - Words initially split by whitespace
@@ -60,47 +60,111 @@ This report presents the implementation and analysis of tokenization methods and
 
 ### 2.3 Tokenization Analysis (Task 1.3)
 
-#### English Corpus
+#### Sensible Tokenizations English corpus (3 examples)
 
-##### Sensible Tokenizations (3 examples)
+##### Whitespace Tokenizer
 
 **Example 1:**
-- **Sentence:** [Insert actual sentence from your output]
-- **Tokenizer:** [Which tokenizer - Whitespace/Regex/BPE]
-- **Output:** `[Show the actual tokens]`
-- **Analysis:** [Explain why this tokenization is sensible for language modeling. Consider: Does it preserve meaning? Does it help predict next words? Does it handle morphology well?]
+- **Sentence:** 'The cat sat'
+- **Output:** `['The', 'cat', 'sat']`
+- **Analysis:** This tokenization preserves complete words and semantic meaning, allowing the model to learn strong word-level associations such as “cat → sat.” It supports reliable next-word prediction because these common word sequences frequently appear in training data
 
 **Example 2:**
-- **Sentence:** [Another sentence]
-- **Tokenizer:** [Which tokenizer]
-- **Output:** `[Tokens]`
-- **Analysis:** [Your reasoning]
+- **Sentence:** 'Hello, world!'
+- **Output:** `['Hello,', 'world!']`
+- **Analysis:** Although punctuation remains attached, the core words are preserved, enabling the model to capture meaningful co-occurrence patterns. It is still useful for predicting sentence-level structures like greetings despite minor vocabulary inflation.
 
 **Example 3:**
-- **Sentence:** [Another sentence]
-- **Tokenizer:** [Which tokenizer]
-- **Output:** `[Tokens]`
-- **Analysis:** [Your reasoning]
+- **Sentence:** 'I love NLP'
+- **Output:** `['I', 'love', 'NLP']`
+- **Analysis:** Each token represents a clear linguistic unit, making probability estimation straightforward. Frequent phrases like “I love” help the model generalize well and improve prediction accuracy.
 
-##### Non-Sensible Tokenizations (3 examples)
+##### Regex Tokenizer
 
 **Example 1:**
-- **Sentence:** [Problematic sentence]
-- **Tokenizer:** [Which tokenizer]
-- **Output:** `[Tokens that show the problem]`
-- **Problem:** [Explain what went wrong. Does it break meaningful units? Create too many/few tokens? Handle punctuation poorly?]
+- **Sentence:** 'hello!'
+- **Output:** `['hello', '!']`
+- **Analysis:** Separating punctuation helps the model explicitly learn that exclamation marks often follow greetings. This improves sentence boundary prediction and reduces noise caused by punctuation-attached words.
 
 **Example 2:**
-- **Sentence:** [Another problematic case]
-- **Tokenizer:** [Which tokenizer]
-- **Output:** `[Tokens]`
+- **Sentence:** 'Price is $5'
+- **Output:** `['price', 'is', '$', '5']`
+- **Analysis:** Breaking currency symbols from numbers allows the model to learn structured patterns in financial expressions. It improves generalization since “$” and numeric values can appear in multiple contexts.
+
+**Example 3:**
+- **Sentence:** 'Are you sure?'
+- **Output:** `['are', 'you', 'sure', '?']`
+- **Analysis:** The tokenizer preserves word meaning while isolating the question mark, helping the model recognize interrogative sentence patterns. This supports better prediction of conversational structures.
+
+##### BPE Tokenizer
+
+**Example 1:**
+- **Sentence:** 'running'
+- **Output:** `['run', 'ing']`
+- **Analysis:** Splitting into “run” and “ing” captures morphological structure, allowing the model to generalize across related forms like “walking” or “playing.” This reduces sparsity and improves prediction reliability.
+
+**Example 2:**
+- **Sentence:** 'unhappiness'
+- **Output:** `['un', 'happi', 'ness']`
+- **Analysis:** The subwords represent prefix, root, and suffix components, enabling the model to understand negation and noun formation. Such decomposition improves handling of rare or unseen words.
+
+**Example 3:**
+- **Sentence:** 'International'
+- **Output:** `['inter', 'national']`
+- **Analysis:** Dividing the word into frequent subunits reduces vocabulary size while preserving semantic cues. These reusable components strengthen probability estimates across different contexts.
+
+#### Non-Sensible Tokenizations English corpus (3 examples)
+
+##### Whitespace Tokenizer
+
+**Example 1:**
+- **Sentence:** 'hello!'
+- **Output:** `['hello!']`
+- **Problem:** Attaching punctuation to the word creates a new token that rarely appears elsewhere, increasing vocabulary size and sparsity while weakening generalization.
+
+**Example 2:**
+- **Sentence:** [hello ,  world!]
+- **Output:** `['hello', ',', 'world!']`
 - **Problem:** [Explain the issue]
 
 **Example 3:**
-- **Sentence:** [Another problematic case]
-- **Tokenizer:** [Which tokenizer]
-- **Output:** `[Tokens]`
-- **Problem:** [Explain the issue]
+- **Sentence:** [don't stop]
+- **Output:** `['don't', 'stop']`
+- **Problem:** Keeping the contraction as a single token prevents the model from learning relationships between “do” and “not,” reducing its ability to generalize across similar constructions.
+
+##### Regex Tokenizer
+
+**Example 1:**
+- **Sentence:** 'U.S.A.'
+- **Output:** `['u', '.', 's', '.', 'a']`
+- **Problem:** Splitting an abbreviation into individual letters destroys its semantic identity, producing tokens that rarely occur independently and harming probability estimation.
+
+**Example 2:**
+- **Sentence:** 'C++'
+- **Output:** `['c', '+', '+']`
+- **Problem:** Breaking a technical term into symbols fragments a meaningful unit, making it harder for the model to learn domain-specific vocabulary.
+
+**Example 3:**
+- **Sentence:** '3.14'
+- **Output:** `['3', '.', '14']`
+- **Problem:** Separating a decimal number disrupts a single numeric concept, potentially confusing the model when learning patterns involving measurements or prices.
+
+##### BPE Tokenizer
+
+**Example 1:**
+- **Sentence:** 'the'
+- **Output:** `['t', 'he']`
+- **Problem:** Over-segmentation of a very frequent word increases sequence length unnecessarily and weakens fluency during generation.
+
+**Example 2:**
+- **Sentence:** 'market'
+- **Output:** `['mar', 'ke', 't']`
+- **Problem:** Fragmenting a common word into multiple subwords reduces interpretability and may dilute meaningful statistical patterns.
+
+**Example 3:**
+- **Sentence:** '$63'
+- **Output:** `['$' '6', '3']`
+- **Problem:** Splitting the currency amount into small units breaks a coherent numerical expression, making it harder for the model to learn financial formats.
 
 #### Mongolian Corpus
 
@@ -148,32 +212,34 @@ This report presents the implementation and analysis of tokenization methods and
 
 | Tokenizer  | No Smoothing | Witten-Bell | Kneser-Ney |
 |------------|--------------|-------------|------------|
-| Whitespace | [Value]      | [Value]     | [Value]    |
-| Regex      | [Value]      | [Value]     | [Value]    |
-| BPE        | [Value]      | [Value]     | [Value]    |
-
-*Note: Fill in actual values from your program output*
+| Whitespace |    [inf]     | [89858.96]  | [2240.72]  |
+| Regex      |    [inf]     | [14371.2]   | [549.39]   |
+| BPE        |    [inf]     | [64.86]     | [44.26]    |
 
 #### Analysis of Perplexity Results:
 
 **Best Overall Model:**
-- [Which tokenizer + smoothing combination achieved lowest perplexity?]
-- [What was the perplexity value?]
+- The combination of BPE tokenizer and Kneser–Ney smoothing gave the lowest perplexity.
+- With a value of 44.26, it provided the most accurate and consistent predictions across all models.
 
 **Effect of Smoothing:**
-- **No smoothing:** [What happened? Infinite perplexity? Why?]
-- **Witten-Bell:** [Performance? How does it compare?]
-- **Kneser-Ney:** [Performance? Why might it be better/worse?]
+- **No smoothing:** All tokenizers resulted in infinite perplexity because unseen n-grams were assigned zero probability, making the model unable to generalize to new sequences.
+
+- **Witten-Bell:** Significantly reduced perplexity compared to no smoothing by redistributing probability mass to unseen events, though performance varied depending on tokenization.
+
+- **Kneser-Ney:** Delivered the best performance as it considers context diversity rather than relying only on frequency, leading to more accurate probability estimates.
 
 **Effect of Tokenization:**
-- **Whitespace:** [How did it perform across smoothing methods?]
-- **Regex:** [How did it perform? Better or worse than whitespace?]
-- **BPE:** [How did it perform? Why might subword units help/hurt?]
+- **Whitespace:** Performed the worst due to very large vocabulary and severe sparsity, resulting in extremely high perplexity even with smoothing.
+
+- **Regex:** Improved over whitespace by producing cleaner tokens and slightly reducing vocabulary size, but still suffered from sparsity inherent to word-level tokenization.
+
+- **BPE:** Achieved dramatically lower perplexity because subword units reduce vocabulary size, improve coverage of rare words, and provide more reliable n-gram counts.
 
 **Key Observations:**
-- [Any patterns you notice?]
-- [Trade-offs between vocabulary size and perplexity?]
-- [Why does smoothing matter so much?]
+- A clear pattern shows that reducing vocabulary size leads to lower perplexity by minimizing sparse contexts.
+- There is a strong trade-off between vocabulary size and predictive confidence, with subword tokenization offering better statistical efficiency.
+- Smoothing is critical in language modeling because it prevents zero probabilities and enables the model to handle unseen sequences effectively.
 
 ### 3.3 Qualitative Analysis (Task 2.4)
 
@@ -219,7 +285,7 @@ This report presents the implementation and analysis of tokenization methods and
 - **Why It Happened:** [Explanation]
 
 **Example 3:**
-- **Original Sentence:** [Full test sentence]
+- **Original Sentence:** [Full test sentence]e
 - **Prefix Given:** [Prefix]
 - **Model Used:** [Model]
 - **Model Output:** [Generation]
@@ -231,29 +297,32 @@ This report presents the implementation and analysis of tokenization methods and
 ##### Effect of Smoothing on Generation Quality
 
 **No Smoothing:**
-- [How does MLE-only model behave? Does it fail often? Get stuck?]
+- Without smoothing, unseen n-grams receive zero probability, making the model highly rigid and prone to repetition. Text generation often resembles memorized training data and may terminate when an unseen context appears. While it can produce grammatically correct sentences on small datasets, it generally fails to generalize as data grows.
 
 **Witten-Bell:**
-- [Does it generate more diverse text? More errors? Better/worse coherence?]
+- Witten–Bell redistributes probability mass to unseen events based on the number of unique continuations for a context, enabling more flexible text generation. It reduces repetition and prevents dead ends but may sometimes allow unlikely word combinations. Overall, it provides a balance between determinism and creativity.
 
 **Kneser-Ney:**
-- [How does generation quality compare? Better word choices?]
+- Kneser–Ney improves generation quality by considering how widely a word appears across different contexts rather than relying only on frequency. This leads to more natural transitions, better fluency, and fewer unnatural phrases. It is widely regarded as the most effective smoothing method for higher-order n-gram models.
 
 ##### Effect of Tokenization on Generation Quality
 
+Tokenization plays a crucial role in language modeling because it defines the unit on which probabilities are learned. The choice of tokenizer directly impacts vocabulary size, data sparsity, and the model’s ability to generalize, all of which influence the fluency and coherence of generated text.
+
 **Whitespace:**
-- [Does it handle punctuation well? Generate natural text?]
-- [Any issues with compound words or contractions?]
+- Splits text only on spaces, resulting in a very large vocabulary.
+- Causes severe data sparsity, making higher-order n-gram predictions unreliable.
+- Generated text is often repetitive, rigid, and closely resembles memorized training data.
 
 **Regex:**
-- [Better punctuation handling?]
-- [More grammatical output?]
-- [Any new problems introduced?]
+- Separates punctuation and symbols, producing cleaner and more consistent tokens.
+- Slightly improves probability estimation but still suffers from vocabulary explosion.
+- Text generation is somewhat more structured than whitespace but remains limited by rare words.
 
 **BPE:**
-- [Does subword tokenization help or hurt readability?]
-- [Can it generate rare words better?]
-- [Any artifacts like "</w>" in output?]
+- Breaks words into frequent subword units, greatly reducing vocabulary size.
+- Minimizes sparsity and improves the model’s ability to handle unseen words.
+- Produces more fluent, flexible, and natural-sounding generated text.
 
 ##### Common Failure Modes Across Models
 
@@ -268,14 +337,16 @@ This report presents the implementation and analysis of tokenization methods and
 ### 4.1 Key Findings
 
 **Tokenization:**
-- For **English**: [Best tokenizer and why]
-- For **Mongolian**: [Best tokenizer and why]
-- **Trade-offs**: [Vocabulary size vs. meaningful units vs. handling unknowns]
+- For English **Byte Pair Encoding (BPE)** performed best because it reduced vocabulary size while preserving meaningful subword patterns, leading to better generalization and improved handling of unseen words.
+- For Mongolian **BPE** was most effective due to the language’s rich morphology, where many word forms are created through suffixes. Subword tokenization helped capture these patterns and significantly reduced sparsity.
+- **Trade-offs**: Tokenization requires balancing vocabulary size, meaningful representation, and handling of unknown words. Word-level methods preserve full semantic units but create large vocabularies and struggle with unseen terms. In contrast, BPE reduces vocabulary size and handles unknown words effectively through subwords, though tokens may be slightly less interpretable.
 
 **Language Modeling:**
-- **Best smoothing method**: [Which one and why]
-- **Best tokenizer for LM**: [Which one and why]
-- **Perplexity vs. generation quality**: [Do they always correlate?]
+- **Best smoothing method**: Kneser–Ney smoothing performed best because it considers the diversity of contexts in which words appear, producing more reliable probability estimates and more natural text generation.
+
+- **Best tokenizer for LM**: BPE proved most suitable for language modeling as it minimizes sparsity, stabilizes probability distributions, and improves both perplexity and generation fluency.
+
+- **Perplexity vs. generation quality**: Lower perplexity generally indicates better predictive performance, but it does not always guarantee superior text generation. Generation quality depends on how probability mass is distributed; overly confident models may produce repetitive text, while well-balanced models generate more natural and diverse language.
 
 ### 4.2 Lessons Learned
 
@@ -305,7 +376,3 @@ If you had more time/resources, what would you try?
 5. Wikipedia – Mongolian Language
 
 ---
-
-## Appendix: Code Examples
-
-[Optional: Include interesting code snippets or additional analysis]

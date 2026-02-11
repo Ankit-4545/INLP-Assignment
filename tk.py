@@ -1,84 +1,56 @@
-"""
-Tokenizers Implementation for Assignment 1
-Implements Whitespace, Regex, and BPE tokenizers
-"""
-
 import re
 from collections import defaultdict, Counter
 
+# Whitespace-based tokenizer
 class WhitespaceTokenizer:
-    """Simple whitespace-based tokenizer"""
     
     def __init__(self):
         self.vocab = set()
     
     def train(self, corpus):
-        """
-        Train the tokenizer on corpus
-        Args:
-            corpus: list of strings (sentences)
-        """
+        
         for sentence in corpus:
             tokens = self._tokenize(sentence)
             self.vocab.update(tokens)
     
     def _tokenize(self, text):
-        """
-        Tokenize a single text
-        Returns: list of tokens
-        """
+        
         # Split on whitespace first
+        text = re.sub(r'([^\w\s])', r' \1 ', text)
         return text.split()
-    
-    
+       
     def tokenize(self, text):
-        """Public tokenize method"""
         return self._tokenize(text)
 
-
 class RegexTokenizer:
-    """Regex-based tokenizer"""
     
     def __init__(self, pattern=None):
-        """
-        Args:
-            pattern: regex pattern to use for tokenization
-        """
+       
         self.pattern = pattern or r"\w+|[^\w\s]"
         self.vocab = set()
     
     def train(self, corpus):
-        """Train the tokenizer"""
+
         for sentence in corpus:
             tokens = self.tokenize(sentence)
             self.vocab.update(tokens)
     
     def tokenize(self, text):
-        """
-        Tokenize using regex
-        Returns: list of tokens
-        """
+        
         tokens = re.findall(self.pattern, text.lower())
         return tokens
 
 
 class BPETokenizer:
-    """Byte Pair Encoding tokenizer"""
     
     def __init__(self, num_merges=1000):
-        """
-        Args:
-            num_merges: number of merge operations to perform
-        """
+       
         self.num_merges = num_merges
         self.vocab = set()
         self.merges = []  # List of merge operations
     
     def train(self, corpus):
-        """
-        Train BPE on corpus
-        This is the core BPE algorithm
-        """
+        
         # Step 1: Initialize with character-level tokens
         word_freqs = self._get_word_frequencies(corpus)
         
@@ -99,10 +71,7 @@ class BPETokenizer:
         self._build_vocab(word_freqs)
     
     def _get_word_frequencies(self, corpus):
-        """
-        Get word frequencies with character splits
-        Returns: dict mapping word (as tuple of chars) to frequency
-        """
+    
         word_freqs = defaultdict(int)
         
         for sentence in corpus:
@@ -116,9 +85,7 @@ class BPETokenizer:
         return word_freqs
     
     def _get_pair_frequencies(self, word_freqs):
-        """
-        Count frequencies of adjacent symbol pairs
-        """
+    
         pairs = defaultdict(int)
         
         for word, freq in word_freqs.items():
@@ -130,9 +97,7 @@ class BPETokenizer:
         return pairs
     
     def _merge_pair(self, pair, word_freqs):
-        """
-        Merge a pair in all words
-        """
+
         new_word_freqs = defaultdict(int)
         
         for word, freq in word_freqs.items():
@@ -153,16 +118,13 @@ class BPETokenizer:
         return new_word_freqs
     
     def _build_vocab(self, word_freqs):
-        """Build final vocabulary from word frequencies"""
         # Extract all unique symbols from word_freqs
         for word in word_freqs.keys():
             for symbol in word:
                 self.vocab.add(symbol)
     
     def tokenize(self, text):
-        """
-        Tokenize text using learned merges
-        """
+
         tokens = []
         words = text.lower().split()
         
@@ -189,13 +151,7 @@ class BPETokenizer:
 
 
 def clean_corpus(text):
-    """
-    Clean corpus of detritus
-    Args:
-        text: raw text string
-    Returns:
-        cleaned text
-    """
+
     cleaned = text
     
     # Normalize unicode characters (NFC normalization)
@@ -236,15 +192,7 @@ def clean_corpus(text):
 
 
 def split_corpus(sentences, train_ratio=0.8, val_ratio=0.1):
-    """
-    Split corpus into train/val/test
-    Args:
-        sentences: list of sentences
-        train_ratio: proportion for training
-        val_ratio: proportion for validation
-    Returns:
-        train, val, test splits
-    """
+
     n = len(sentences)
     train_end = int(n * train_ratio)
     val_end = train_end + int(n * val_ratio)
@@ -257,8 +205,8 @@ def split_corpus(sentences, train_ratio=0.8, val_ratio=0.1):
 
 
 if __name__ == "__main__":
-    # Quick test
-    test_text = "Hello, world! This is a test."
+
+    test_text = "hello , world"
     
     ws = WhitespaceTokenizer()
     print(f"Whitespace: {ws.tokenize(test_text)}")

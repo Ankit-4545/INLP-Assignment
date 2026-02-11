@@ -517,21 +517,6 @@ def print_qualitative_analysis(results, tokenized_data, language_name):
         print("   Could break up case markers inappropriately")
     if language_name == "Mongolian":
         return
-    print("\n--- Model Performance Analysis ---")
-    print("• No Smoothing (MLE):")
-    print("  - Fast training, but assigns 0 probability to unseen n-grams")
-    print("  - Results in infinite perplexity on test data")
-    print("  - Not suitable for real applications")
-    
-    print("\n• Witten-Bell Smoothing:")
-    print("  - Uses type-based discounting: P(unseen) ∝ T(context)/(C(context)+T(context))")
-    print("  - T(context) = number of unique words seen after context")
-    print("  - Good for medium-sized vocabularies")
-    
-    print("\n• Kneser-Ney Smoothing:")
-    print("  - Uses absolute discounting (D=0.75) and continuation probability")
-    print("  - Continuation prob: how many contexts does word appear in?")
-    print("  - Best perplexity scores, industry standard")
     
     # Print perplexity summary with analysis
     print("\n--- Perplexity Summary with Interpretation ---")
@@ -568,11 +553,7 @@ if __name__ == "__main__":
     # base_path = "D:\Natural Language\NLP\Assignments\Assignment01\files"
     english_path = "cc100_en.jsonl"  # Update with actual path
     mongolian_path = "cc100_mn.jsonl"  # Update with actual path
-    
-    print("="*70)
-    print("NLP ASSIGNMENT 1: Language Models with Different Smoothing Techniques")
-    print("="*70)
-    
+
     # Check if datasets exist
     if not os.path.exists(english_path):
         print(f"WARNING: English dataset not found at {english_path}")
@@ -603,9 +584,7 @@ if __name__ == "__main__":
         print_qualitative_analysis(mn_results, mn_data, "Mongolian")
     
     # Final summary
-    print(f"\n{'='*70}")
     print("FINAL SUMMARY")
-    print(f"{'='*70}")
     
     print("\nPerplexity Comparison Table:")
     print("-"*70)
@@ -623,7 +602,4 @@ if __name__ == "__main__":
             kn_str = "inf" if math.isinf(kn) else f"{kn:.1f}"
             
             print(f"{lang:<12} {tok_name:<12} {ns_str:<12} {wb_str:<12} {kn_str:<12}")
-    
-    print("\n" + "="*70)
-    print("Experiment Complete!")
-    print("="*70)
+    print("Experiment completed.")
