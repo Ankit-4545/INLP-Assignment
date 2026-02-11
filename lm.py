@@ -1,8 +1,3 @@
-"""
-Language Models Implementation for Assignment 1
-Implements 4-gram LM with different smoothing techniques
-"""
-
 import math
 from collections import defaultdict, Counter
 from tk import (
@@ -17,21 +12,14 @@ class NGramLanguageModel:
     """Base n-gram language model"""
     
     def __init__(self, n=4):
-        """
-        Args:
-            n: order of n-gram (4 for 4-gram)
-        """
+        
         self.n = n
         self.ngram_counts = defaultdict(int)
         self.context_counts = defaultdict(int)
         self.vocab = set()
     
     def train(self, tokenized_corpus):
-        """
-        Train the language model
-        Args:
-            tokenized_corpus: list of lists of tokens
-        """
+        
         for sentence in tokenized_corpus:
             # Add start and end tokens
             padded = ['<s>'] * (self.n - 1) + sentence + ['</s>']
@@ -45,14 +33,9 @@ class NGramLanguageModel:
                 self.context_counts[context] += 1
                 self.vocab.update(padded)
     
+    # Get probability of an n-gram (to be overridden by smoothing methods)
     def get_probability(self, ngram):
-        """
-        Get probability of an n-gram (to be overridden by smoothing methods)
-        Args:
-            ngram: tuple of n tokens
-        Returns:
-            probability (float)
-        """
+
         context = ngram[:-1]
         
         if self.context_counts[context] == 0:
@@ -61,14 +44,9 @@ class NGramLanguageModel:
         # Basic MLE without smoothing
         return self.ngram_counts[ngram] / self.context_counts[context]
     
+    # Calculate perplexity on test set
     def perplexity(self, test_sentences):
-        """
-        Calculate perplexity on test set
-        Args:
-            test_sentences: list of tokenized sentences
-        Returns:
-            perplexity score
-        """
+        
         log_prob_sum = 0
         word_count = 0
         
@@ -93,14 +71,9 @@ class NGramLanguageModel:
         
         return perplexity
     
+    # Predict next token given context
     def predict_next_token(self, context):
-        """
-        Predict the most likely next token given context
-        Args:
-            context: tuple of previous tokens
-        Returns:
-            most likely next token
-        """
+    
         # Get all possible next tokens
         candidates = {}
         for ngram in self.ngram_counts:
@@ -117,15 +90,9 @@ class NGramLanguageModel:
         # Return token with highest probability
         return max(candidates, key=candidates.get)
     
+    # Complete a sentence given partial input
     def complete_sentence(self, partial_sentence, max_length=50):
-        """
-        Complete a sentence given partial input
-        Args:
-            partial_sentence: list of tokens
-            max_length: maximum number of tokens to generate
-        Returns:
-            completed sentence (list of tokens)
-        """
+    
         result = partial_sentence.copy()
         
         # Pad context if needed
@@ -144,9 +111,8 @@ class NGramLanguageModel:
         
         return result
 
-
+# Witten-Bell smoothing implementations
 class WittenBellLM(NGramLanguageModel):
-    """Language Model with Witten-Bell Smoothing"""
     
     def __init__(self, n=4):
         super().__init__(n)
@@ -206,8 +172,8 @@ class WittenBellLM(NGramLanguageModel):
         return prob
 
 
+# Kneser-Ney smoothing implementation
 class KneserNeyLM(NGramLanguageModel):
-    """Language Model with Kneser-Ney Smoothing"""
     
     def __init__(self, n=4, discount=0.75):
         super().__init__(n)
@@ -301,14 +267,7 @@ class KneserNeyLM(NGramLanguageModel):
 
 
 def load_jsonl_corpus(filepath, max_lines=5000):
-    """
-    Load corpus from JSONL file
-    Args:
-        filepath: path to JSONL file
-        max_lines: maximum number of lines to load (for memory management)
-    Returns:
-        list of text strings
-    """
+
     import json
     texts = []
     with open(filepath, 'r', encoding='utf-8') as f:
@@ -351,14 +310,13 @@ def run_full_experiment(corpus_path, language_name, max_lines=3000):
         cleaned = clean_corpus(text)
         if cleaned and len(cleaned) > 10:  # Skip very short texts
             cleaned_texts.append(cleaned)
-    print(f"    {len(cleaned_texts)} sentences after cleaning")
     
     # Initialize tokenizers
     print("\n[3] Initializing tokenizers...")
     tokenizers = {
         'Whitespace': WhitespaceTokenizer(),
         'Regex': RegexTokenizer(),
-        'BPE': BPETokenizer(num_merges=500)
+        'BPE': BPETokenizer(num_merges=3000)
     }
     
     # Train tokenizers and prepare data splits
@@ -387,10 +345,10 @@ def run_full_experiment(corpus_path, language_name, max_lines=3000):
         
         # Show sample tokenization
         if cleaned_texts:
-            sample = cleaned_texts[0][:100]
+            sample = cleaned_texts[0]
             sample_tokens = tokenizer.tokenize(sample)
-            print(f"    Sample: '{sample[:50]}...'")
-            print(f"    Tokens: {sample_tokens[:15]}...")
+            print(f"    Sample: '{sample}'")
+            print(f"    Tokens: {sample_tokens}")
     results = {}
     if language_name == "Mongolian":
         return results, tokenized_data
@@ -449,10 +407,10 @@ def run_full_experiment(corpus_path, language_name, max_lines=3000):
         tok_prompts = []
         data = tokenized_data[tok_name]
         if data['train']:
-            for sent in data['train'][:20]:
+            for sent in data['train'][:100]:
                 if len(sent) >= 3:
                     tok_prompts.append(sent[:3])
-                    if len(tok_prompts) >= 2:
+                    if len(tok_prompts) >= 5: 
                         break
         
         if not tok_prompts:
@@ -568,7 +526,7 @@ if __name__ == "__main__":
         en_results, en_data = run_full_experiment(
             english_path, 
             "English", 
-            max_lines=2000  # Adjust based on available memory
+            max_lines=500000  # Adjust based on available memory
         )
         all_results['English'] = en_results
         print_qualitative_analysis(en_results, en_data, "English")
