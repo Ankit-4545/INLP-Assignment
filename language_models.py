@@ -429,7 +429,6 @@ def run_full_experiment(corpus_path, language_name, max_lines=3000):
 
 
 def print_qualitative_analysis(results, tokenized_data, language_name):
-    """Print qualitative analysis of tokenization and model performance"""
     print(f"\n{'='*70}")
     print(f"QUALITATIVE ANALYSIS FOR {language_name.upper()}")
     print(f"{'='*70}")
@@ -468,7 +467,6 @@ if __name__ == "__main__":
     import os
     
     # Paths to datasets
-    # base_path = "D:\Natural Language\NLP\Assignments\Assignment01\files"
     english_path = "cc100_en.jsonl"  # Update with actual path
     mongolian_path = "cc100_mn.jsonl"  # Update with actual path
 
