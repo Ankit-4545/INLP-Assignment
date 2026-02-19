@@ -165,7 +165,6 @@ def clean_corpus(text):
     cleaned = re.sub(r'[\u2018\u2019\u201a\u201b]', "'", cleaned)
     cleaned = re.sub(r'[\u201c\u201d\u201e\u201f]', '"', cleaned)
     
-    # Replace ellipsis character with three dots
     cleaned = re.sub(r'\u2026', '...', cleaned)
     
     # Remove control characters (except newlines and tabs)
@@ -174,10 +173,8 @@ def clean_corpus(text):
     # Fix excessive whitespace (multiple spaces to single space)
     cleaned = re.sub(r'[ \t]+', ' ', cleaned)
     
-    # Fix excessive newlines (more than 2 consecutive newlines)
     cleaned = re.sub(r'\n{3,}', '\n\n', cleaned)
     
-    # Remove leading/trailing whitespace from each line
     lines = cleaned.split('\n')
     lines = [line.strip() for line in lines]
     cleaned = '\n'.join(lines)

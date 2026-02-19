@@ -151,17 +151,10 @@ class WittenBellLM(NGramLanguageModel):
         if count_context == 0:
             # Unseen context: use uniform distribution over vocabulary
             return 1.0 / len(self.vocab) if len(self.vocab) > 0 else 0.0
-        
-        # Calculate lambda (interpolation weight for backoff)
-        # Lambda = T(context) / (C(context) + T(context))
         lambda_wb = T / (count_context + T)
         
         # Backoff probability (uniform over vocabulary for simplicity)
         p_backoff = 1.0 / len(self.vocab) if len(self.vocab) > 0 else 0.0
-        
-        # Witten-Bell interpolated probability:
-        # P(w|context) = (1 - lambda) * P_ML(w|context) + lambda * P_backoff(w)
-        # Which simplifies to: (count_ngram + T * P_backoff) / (count_context + T)
         if count_ngram > 0:
             p_ml = count_ngram / count_context
             prob = (1 - lambda_wb) * p_ml + lambda_wb * p_backoff
@@ -183,11 +176,7 @@ class KneserNeyLM(NGramLanguageModel):
     def train(self, tokenized_corpus):
         """Train and compute continuation counts for KN"""
         super().train(tokenized_corpus)
-        
-        # For Kneser-Ney, we need continuation counts
-        # P_continuation(w) = |{w' : count(w', w) > 0}| / |{(w', w'') : count(w', w'') > 0}|
-        # This counts how many different contexts a word appears in (type diversity)
-        
+    
         unique_contexts = defaultdict(set)
         for ngram in self.ngram_counts:
             word = ngram[-1]
@@ -284,14 +273,6 @@ def load_jsonl_corpus(filepath, max_lines=5000):
 
 
 def run_full_experiment(corpus_path, language_name, max_lines=3000):
-    """
-    Run full experiment for a language:
-    - Load and clean corpus
-    - Train 3 tokenizers
-    - Train 3 LM variants for each tokenizer
-    - Calculate perplexity
-    - Demonstrate autocomplete
-    """
     
     
     print(f"\n{'='*70}")
